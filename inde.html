@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Friendship Quest! 🌸</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* 1. CHIIKAWA CHARACTER IMAGES */
+            --chiikawa-img: url('images/image1.gif');
+            --momonga-img: url('images/image2.gif');
+            --usagi-img: url('images/image3.gif');
+            --chiikawa-cry-img: url('images/image4.gif');
+            --chiikawa-help-img: url('images/image5.gif');
+
+            /* 2. THE PUZZLE IMAGES */
+            --fake-image: url('https://images.unsplash.com/photo-1574144611937-0df059b5ef3e?q=80&w=400&h=400&auto=format&fit=crop');
+            --real-image: url('images/puzzle.png');
+
+            /* 3. FLOWER TRANSITION IMAGE */
+            --flower-bg: url('images/flower.png');
+        }
+
+        body {
+            background-color: #fff0f5;
+            background-image: radial-gradient(#ffe4e1 20%, transparent 20%);
+            background-size: 30px 30px;
+            font-family: 'Nunito', sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+            color: #5c4033;
+        }
+
+        .console {
+            background: #fff9e6;
+            border: 8px solid #6b4c3a;
+            border-radius: 60px;
+            box-shadow: 0 15px 35px rgba(107, 76, 58, 0.2);
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            max-width: 900px;
+            width: 95%;
+            transition: opacity 0.5s;
+        }
+
+        .d-pad, .action-btn {
+            background: #ffb3c6;
+            border: 4px solid #6b4c3a;
+            width: 45px; height: 45px;
+            border-radius: 50%;
+            box-shadow: inset -3px -3px 0px rgba(0,0,0,0.1);
+            flex-shrink: 0;
+        }
+
+        .action-btn {
+            background: #ffe066;
+            clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+            width: 55px; height: 55px; border-radius: 0;
+        }
+
+        .screen {
+            background-image: url('images/bg.jpeg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            border: 5px solid #6b4c3a;
+            border-radius: 20px;
+            flex-grow: 1;
+            padding: 12px;
+            height: 600px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            box-sizing: border-box;
+        }
+
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            font-weight: 800;
+            background: rgba(255, 255, 255, 0.8);
+            padding: 5px 12px;
+            border-radius: 15px;
+            border: 2px solid #6b4c3a;
+        }
+
+        /* RPG Dialogue Area */
+        .story-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            flex-grow: 1;
+            gap: 12px;
+        }
+
+        .character-frame {
+            width: 140px; height: 140px;
+            background: #fff;
+            border: 4px solid #6b4c3a;
+            border-radius: 20px;
+            background-image: var(--chiikawa-img);
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            box-shadow: 0 4px 0px rgba(107, 76, 58, 0.15);
+        }
+
+        .dialogue-bubble {
+            background: #fff;
+            border: 3px solid #6b4c3a;
+            border-radius: 15px;
+            padding: 10px 14px;
+            font-weight: 700;
+            text-align: center;
+            box-shadow: 2px 2px 0px rgba(107, 76, 58, 0.2);
+            width: 90%;
+            max-width: 400px;
+            font-size: 0.85rem;
+            line-height: 1.35;
+            box-sizing: border-box;
+            min-height: 55px;
+        }
+
+        /* Puzzle Area Styles */
+        .puzzle-area {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            flex-grow: 1;
+        }
+
+        .board-container {
+            width: 240px; height: 240px;
+            background: #4a3324;
+            border: 4px solid #6b4c3a;
+            border-radius: 8px;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
+            position: relative;
+        }
+
+        .puzzle-board {
+            display: grid;
+            grid-template-columns: repeat(3, 80px);
+            grid-template-rows: repeat(3, 80px);
+            width: 100%; height: 100%;
+        }
+
+        .puzzle-slot {
+            width: 80px; height: 80px;
+            position: relative;
+        }
+
+        .pieces-bank {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            max-width: 320px;
+            min-height: 130px;
+            background: rgba(255, 255, 255, 0.6);
+            border: 2px dashed #6b4c3a;
+            border-radius: 12px;
+            padding: 10px;
+            box-sizing: border-box;
+        }
+
+        .puzzle-piece {
+            width: 100px; height: 100px;
+            background-image: var(--fake-image);
+            background-size: 240px 240px;
+            cursor: pointer;
+            filter: drop-shadow(2px 2px 3px rgba(0,0,0,0.4));
+            transition: transform 0.2s;
+            -webkit-mask-size: cover;
+            mask-size: cover;
+            transform: scale(0.65);
+            margin: -15px;
+        }
+
+        .puzzle-piece.selected {
+            transform: scale(0.75) rotate(5deg);
+            filter: drop-shadow(0 0 12px #ff5757) brightness(1.2);
+            z-index: 50;
+        }
+
+        .puzzle-slot .puzzle-piece {
+            position: absolute;
+            left: -10px; top: -10px;
+            width: 100px; height: 100px;
+            transform: scale(1);
+            filter: drop-shadow(0px 0px 1.5px rgba(0,0,0,0.7));
+            margin: 0;
+            z-index: 10;
+        }
+
+        #piece-0 { background-position: 10px 10px; -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M 10 10 L 90 10 L 90 35 C 105 35 105 65 90 65 L 90 90 L 65 90 C 65 105 35 105 35 90 L 10 90 L 10 10 Z'/%3E%3C/svg%3E"); }
+        #piece-1 { background-position: -70px 10px; -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M 10 10 L 90 10 L 90 35 C 105 35 105 65 90 65 L 90 90 L 65 90 C 65 75 35 75 35 90 L 10 90 L 10 65 C 25 65 25 35 10 35 L 10 10 Z'/%3E%3C/svg%3E"); }
+        #piece-2 { background-position: -150px 10px; -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M 10 10 L 90 10 L 90 90 L 65 90 C 65 105 35 105 35 90 L 10 90 L 10 65 C 25 65 25 35 10 35 L 10 10 Z'/%3E%3C/svg%3E"); }
+        #piece-3 { background-position: 10px -70px; -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M 10 10 L 35 10 C 35 25 65 25 65 10 L 90 10 L 90 35 C 75 35 75 65 90 65 L 90 90 L 65 90 C 65 105 35 105 35 90 L 10 90 L 10 10 Z'/%3E%3C/svg%3E"); }
+        #piece-4 { background-position: -70px -70px; -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M 10 10 L 35 10 C 35 -5 65 -5 65 10 L 90 10 L 90 35 C 105 35 105 65 90 65 L 90 90 L 65 90 C 65 75 35 75 35 90 L 10 90 L 10 65 C -5 65 -5 35 10 35 L 10 10 Z'/%3E%3C/svg%3E"); }
+        #piece-5 { background-position: -150px -70px; -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M 10 10 L 35 10 C 35 25 65 25 65 10 L 90 10 L 90 90 L 65 90 C 65 105 35 105 35 90 L 10 90 L 10 65 C 25 65 25 35 10 35 L 10 10 Z'/%3E%3C/svg%3E"); }
+        #piece-6 { background-position: 10px -150px; -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M 10 10 L 35 10 C 35 25 65 25 65 10 L 90 10 L 90 35 C 105 35 105 65 90 65 L 90 90 L 10 90 L 10 10 Z'/%3E%3C/svg%3E"); }
+        #piece-7 { background-position: -70px -150px; -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M 10 10 L 35 10 C 35 -5 65 -5 65 10 L 90 10 L 90 35 C 75 35 75 65 90 65 L 90 90 L 10 90 L 10 65 C 25 65 25 35 10 35 L 10 10 Z'/%3E%3C/svg%3E"); }
+        #piece-8 { background-position: -150px -150px; -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M 10 10 L 35 10 C 35 25 65 25 65 10 L 90 10 L 90 90 L 10 90 L 10 65 C -5 65 -5 35 10 35 L 10 10 Z'/%3E%3C/svg%3E"); }
+
+        .board-container.won .puzzle-piece { filter: drop-shadow(0 0 0 transparent); z-index: 1; }
+        .flash-animation { animation: pulse-glow 1.5s ease-in-out; }
+
+        @keyframes pulse-glow {
+            0% { box-shadow: inset 0 0 10px rgba(0,0,0,0.5); filter: brightness(1); }
+            50% { box-shadow: inset 0 0 35px #fff, 0 0 25px #ffb3c6; filter: brightness(1.4); }
+            100% { box-shadow: inset 0 0 10px rgba(0,0,0,0.5); filter: brightness(1); }
+        }
+
+        .board-container.revealed .puzzle-piece {
+            background-image: var(--real-image);
+            transition: background-image 1.5s ease-in-out;
+        }
+
+        .btn {
+            font-family: 'Nunito', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 800;
+            color: #5c4033;
+            border: 3px solid #6b4c3a;
+            border-radius: 30px;
+            padding: 8px 18px;
+            cursor: pointer;
+            background-color: #ffb3c6;
+            box-shadow: 2px 3px 0px rgba(107, 76, 58, 0.2);
+            transition: 0.2s;
+        }
+        .btn:active { transform: translateY(2px); box-shadow: none; }
+
+        /* --- ELEMENTS FOR ENVELOPE & FLOWER ANIMATION --- */
+
+        #envelope-btn {
+            display: none;
+            width: 160px;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: transform 0.2s;
+            animation: bounce 2s infinite ease-in-out;
+        }
+
+        #envelope-btn:hover {
+            transform: scale(1.1);
+            animation: none;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
+        }
+
+        /* Full-Screen Overlay Container */
+        #flower-overlay {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100vw; height: 100vh;
+            z-index: 9999;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            pointer-events: none;
+            overflow: visible;
+        }
+
+        /* Smooth Drop Transition */
+        .drop-animation {
+            animation: drop-flowers 1.4s cubic-bezier(0.55, 0, 1, 0.45) forwards !important;
+        }
+
+        @keyframes drop-flowers {
+            0% { transform: translateY(0) translateZ(0); opacity: 1; }
+            100% { transform: translateY(110vh) translateZ(0); opacity: 0; }
+        }
+
+        /* Natural Flower Graphic Layer */
+        .flower-circle {
+            position: absolute;
+            width: 200px;
+            height: 200px;
+            background-image: var(--flower-bg);
+            background-size: contain;
+            background-position: center;
+            background-repeat: no-repeat;
+            transform: scale(0) translateZ(0);
+            opacity: 0;
+            filter: drop-shadow(0px 2px 8px rgba(0,0,0,0.12));
+            will-change: transform, opacity;
+        }
+
+        /* Bloom duration (2.6s) with smooth staggered opening */
+        .bloom-animation .flower-circle {
+            animation: step-bloom 2.6s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+        }
+
+        /* Staggered delays spaced cleanly at 0.40s intervals */
+        .bloom-animation .layer-11 { --target-scale: 0.85; animation-delay: 0.00s; z-index: 11; }
+        .bloom-animation .layer-10 { --target-scale: 1.8;  animation-delay: 0.40s; z-index: 10; }
+        .bloom-animation .layer-9  { --target-scale: 3.2;  animation-delay: 0.80s; z-index: 9;  }
+        .bloom-animation .layer-8  { --target-scale: 5.0;  animation-delay: 1.20s; z-index: 8;  }
+        .bloom-animation .layer-7  { --target-scale: 7.5;  animation-delay: 1.60s; z-index: 7;  }
+        .bloom-animation .layer-6  { --target-scale: 11.0; animation-delay: 2.00s; z-index: 6;  }
+        .bloom-animation .layer-5  { --target-scale: 16.0; animation-delay: 2.40s; z-index: 5;  }
+        .bloom-animation .layer-4  { --target-scale: 22.0; animation-delay: 2.80s; z-index: 4;  }
+        .bloom-animation .layer-3  { --target-scale: 28.0; animation-delay: 3.20s; z-index: 3;  }
+        .bloom-animation .layer-2  { --target-scale: 35.0; animation-delay: 3.60s; z-index: 2;  }
+        .bloom-animation .layer-1  { --target-scale: 45.0; animation-delay: 4.00s; z-index: 1;  }
+
+        @keyframes step-bloom {
+            0% {
+                transform: scale(0) translateZ(0);
+                opacity: 0;
+            }
+            15% {
+                opacity: 1;
+            }
+            100% {
+                transform: scale(var(--target-scale)) translateZ(0);
+                opacity: 1;
+            }
+        }
+
+        /* The Final Letter Screen */
+        #final-letter-screen {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100vw; height: 100vh;
+            background-color: #fff0f5;
+            background-image: radial-gradient(#ffe4e1 20%, transparent 20%);
+            background-size: 30px 30px;
+            z-index: 500;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .letter-content {
+            position: relative; /* Anchor for 50/50 overlapping flower images */
+            background: #fff;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 15px 30px rgba(107, 76, 58, 0.2);
+            border: 3px solid #ffb3c6;
+            max-width: 600px;
+            width: 90%;
+            text-align: center;
+            font-size: 1.1rem;
+            line-height: 1.6;
+            color: #5c4033;
+        }
+
+        .letter-content h2 {
+            color: #d90429;
+            margin-top: 0;
+            margin-bottom: 20px;
+        }
+
+        /* OVERLAPPING FLOWER ACCENTS */
+        .letter-flower {
+            position: absolute;
+            width: 200px;
+            height: 200px;
+            pointer-events: none;
+            object-fit: contain;
+            filter: drop-shadow(2px 4px 6px rgba(107, 76, 58, 0.15));
+            z-index: 10;
+        }
+
+        /* Flower 1: Top-Left Corner (50/50 Overlap) */
+        .flower-top-left {
+            top: -80px;
+            left: -60px;
+        }
+
+        /* Flower 2: Bottom-Right Corner (50/50 Overlap + Rotated) */
+        .flower-bottom-right {
+            bottom: -60px;
+            right: -60px;
+            transform: rotate(135deg);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 1. MAIN GAME CONSOLE -->
+    <div class="console" id="game-console">
+        <div style="display: flex; flex-direction: column; align-items: center; gap: 5px;">
+            <div class="d-pad" style="width: 28px; height: 28px;"></div>
+            <div style="display: flex; gap: 15px;">
+                <div class="d-pad" style="width: 28px; height: 28px;"></div>
+                <div class="d-pad" style="width: 28px; height: 28px;"></div>
+            </div>
+            <div class="d-pad" style="width: 28px; height: 28px;"></div>
+        </div>
+
+        <div class="screen">
+            <div class="top-bar">
+                <span>FRIENDSHIP QUEST</span>
+                <span id="progress-text">Prologue</span>
+            </div>
+
+            <!-- STORY / DIALOGUE SCREEN -->
+            <div id="story-area" class="story-container">
+                <div id="char-frame" class="character-frame"></div>
+                <div class="dialogue-bubble" id="dialogue-text">...</div>
+                <button class="btn" id="next-btn" onclick="nextDialogue()" style="display: none;">Next ▶</button>
+            </div>
+
+            <!-- PUZZLE SCREEN -->
+            <div class="puzzle-area" id="puzzle-area">
+                <div class="dialogue-bubble" id="puzzle-dialogue" style="font-size: 0.8rem; padding: 4px; width: 100%; min-height: 28px;">
+                    Tap a piece, then an empty slot. Tap pieces to swap!
+                </div>
+
+                <div class="board-container" id="board-container">
+                    <div class="puzzle-board" id="board">
+                        <div class="puzzle-slot" data-slot="0" onclick="handleSlotClick(this)"></div>
+                        <div class="puzzle-slot" data-slot="1" onclick="handleSlotClick(this)"></div>
+                        <div class="puzzle-slot" data-slot="2" onclick="handleSlotClick(this)"></div>
+                        <div class="puzzle-slot" data-slot="3" onclick="handleSlotClick(this)"></div>
+                        <div class="puzzle-slot" data-slot="4" onclick="handleSlotClick(this)"></div>
+                        <div class="puzzle-slot" data-slot="5" onclick="handleSlotClick(this)"></div>
+                        <div class="puzzle-slot" data-slot="6" onclick="handleSlotClick(this)"></div>
+                        <div class="puzzle-slot" data-slot="7" onclick="handleSlotClick(this)"></div>
+                        <div class="puzzle-slot" data-slot="8" onclick="handleSlotClick(this)"></div>
+                    </div>
+                </div>
+
+                <!-- Jigsaw Pieces Bank -->
+                <div class="pieces-bank" id="bank" onclick="handleBankClick()"></div>
+
+                <!-- ENVELOPE BUTTON -->
+                <img id="envelope-btn" src="images/envelope.png" alt="Open Letter" onclick="openEnvelope()">
+            </div>
+        </div>
+        <div class="action-btn"></div>
+    </div>
+
+    <!-- 2. FLOWER TRANSITION OVERLAY -->
+    <div id="flower-overlay">
+        <div class="flower-circle layer-11"></div>
+        <div class="flower-circle layer-10"></div>
+        <div class="flower-circle layer-9"></div>
+        <div class="flower-circle layer-8"></div>
+        <div class="flower-circle layer-7"></div>
+        <div class="flower-circle layer-6"></div>
+        <div class="flower-circle layer-5"></div>
+        <div class="flower-circle layer-4"></div>
+        <div class="flower-circle layer-3"></div>
+        <div class="flower-circle layer-2"></div>
+        <div class="flower-circle layer-1"></div>
+    </div>
+
+    <!-- 3. FINAL LETTER SCREEN -->
+    <div id="final-letter-screen">
+        <div class="letter-content">
+            <!-- 50/50 Overlapping Flowers -->
+            <img class="letter-flower flower-top-left" src="images/flower1.png" alt="Flower accent">
+            <img class="letter-flower flower-bottom-right" src="images/flower1.png" alt="Rotated flower accent">
+
+            <h2>For You, Qila ❤️</h2>
+            <p>There were so many "what ifs" between us and so many possibilities, yet somehow we ended up together. At first, I only saw you as a friend because of our age gap. But as we spent more time together, my feelings shifted and my perspective changed completely. Getting to know you deeply changed everything. I feel connected to you in a way I never expected, and those intense feelings have only grown over time until they became uncontainable.</p>
+            <p>I am completely, wholly falling for you in every aspect. I am incandescently happy whenever I'm in your presence. I think of you constantly, even when you are right in front of me. You have bewitched me, body and soul, and I love, I love, I love you. From this day forth, I wish never to be parted from you.</p>
+            <p>Sincerely,<br><strong>Mi</strong></p>
+        </div>
+    </div>
+
+    <script>
+        const script = [
+            { charVar: '--chiikawa-img', text: "Oh! Hi Qila, Thank goodness you're here! 🐾" },
+            { charVar: '--chiikawa-img', text: "Hachiware and I were trying to put together a special memory puzzle..." },
+            { charVar: '--momonga-img', text: "Hmph! It's way too hard! And Momonga keeps messing it up!" },
+            { charVar: '--usagi-img', text: "YAA-HA! 🎶 *KICK scatter scatter!*" },
+            { charVar: '--chiikawa-cry-img', text: "Eek, Usagi no! Look, they scattered all the puzzle pieces everywhere! 😭" },
+            { charVar: '--chiikawa-help-img', text: "Qila, Could you please help us put the puzzle back together? We know you can do it! ❤️" }
+        ];
+
+        let currentLine = 0;
+        let charIndex = 0;
+        let timer = null;
+
+        function startDialogue() {
+            currentLine = 0;
+            showLine();
+        }
+
+        function showLine() {
+            document.getElementById('next-btn').style.display = 'none';
+            const data = script[currentLine];
+            document.getElementById('char-frame').style.backgroundImage = `var(${data.charVar})`;
+
+            const dialogueBox = document.getElementById('dialogue-text');
+            dialogueBox.innerHTML = "";
+            charIndex = 0;
+
+            clearInterval(timer);
+            timer = setInterval(() => {
+                if (charIndex < data.text.length) {
+                    dialogueBox.innerHTML += data.text.charAt(charIndex);
+                    charIndex++;
+                } else {
+                    clearInterval(timer);
+                    document.getElementById('next-btn').style.display = 'inline-block';
+                }
+            }, 30);
+        }
+
+        function nextDialogue() {
+            currentLine++;
+            if (currentLine < script.length) {
+                showLine();
+            } else {
+                launchPuzzleScene();
+            }
+        }
+
+        window.onload = startDialogue;
+
+        // --- PUZZLE LOGIC ---
+        let selectedPiece = null;
+
+        function launchPuzzleScene() {
+            document.getElementById('progress-text').innerText = "Act I: Jigsaw";
+            document.getElementById('story-area').style.display = 'none';
+            document.getElementById('puzzle-area').style.display = 'flex';
+            initPuzzle();
+        }
+
+        function initPuzzle() {
+            const bank = document.getElementById('bank');
+            bank.innerHTML = '';
+
+            let pieces = [0, 1, 2, 3, 4, 5, 6, 7, 8];
+            pieces.sort(() => Math.random() - 0.5);
+
+            pieces.forEach(num => {
+                const piece = document.createElement('div');
+                piece.classList.add('puzzle-piece');
+                piece.id = `piece-${num}`;
+                piece.dataset.id = num;
+
+                piece.onclick = (e) => {
+                    e.stopPropagation();
+                    handlePieceClick(piece);
+                };
+                bank.appendChild(piece);
+            });
+        }
+
+        function handlePieceClick(piece) {
+            if (selectedPiece === piece) {
+                piece.classList.remove('selected');
+                selectedPiece = null;
+                return;
+            }
+
+            if (selectedPiece) {
+                const parent1 = selectedPiece.parentNode;
+                const parent2 = piece.parentNode;
+                const sibling1 = selectedPiece.nextSibling === piece ? selectedPiece : selectedPiece.nextSibling;
+
+                parent2.insertBefore(selectedPiece, piece);
+                parent1.insertBefore(piece, sibling1);
+
+                selectedPiece.classList.remove('selected');
+                selectedPiece = null;
+
+                checkWin();
+            } else {
+                selectedPiece = piece;
+                selectedPiece.classList.add('selected');
+            }
+        }
+
+        function handleSlotClick(slot) {
+            if (!selectedPiece) return;
+
+            if (slot.children.length === 0) {
+                slot.appendChild(selectedPiece);
+                selectedPiece.classList.remove('selected');
+                selectedPiece = null;
+                checkWin();
+            }
+        }
+
+        function handleBankClick() {
+            if (!selectedPiece) return;
+            document.getElementById('bank').appendChild(selectedPiece);
+            selectedPiece.classList.remove('selected');
+            selectedPiece = null;
+        }
+
+        function checkWin() {
+            const slots = document.querySelectorAll('.puzzle-slot');
+            let correctCount = 0;
+
+            slots.forEach(slot => {
+                const piece = slot.firstElementChild;
+                if (piece && piece.dataset.id === slot.dataset.slot) {
+                    correctCount++;
+                }
+            });
+
+            if (correctCount === 9) {
+                triggerAnimationSequence();
+            }
+        }
+
+        function triggerAnimationSequence() {
+            document.getElementById('bank').style.display = 'none';
+            const boardContainer = document.getElementById('board-container');
+            const dialogue = document.getElementById('puzzle-dialogue');
+
+            boardContainer.classList.add('won');
+            boardContainer.classList.add('flash-animation');
+            dialogue.innerHTML = "✨ Usagi, Chiikawa & Momonga are cheering! ✨";
+
+            setTimeout(() => {
+                boardContainer.classList.add('revealed');
+                dialogue.style.transform = "scale(1.05)";
+                dialogue.innerHTML = `
+                    <span style="color: #d90429; font-size: 0.85rem;">Wait... a hidden message appeared! 😳</span><br>
+                    <strong>May I be someone you feel safe with? ❤️</strong>
+                `;
+
+                setTimeout(() => {
+                    document.getElementById('envelope-btn').style.display = 'block';
+                }, 1000);
+            }, 1500);
+        }
+
+        // --- LOGIC FOR FLOWER ANIMATION & LETTER REVEAL ---
+        function openEnvelope() {
+            const flowerOverlay = document.getElementById('flower-overlay');
+            const mainConsole = document.getElementById('game-console');
+            const letterScreen = document.getElementById('final-letter-screen');
+
+            // 1. Show overlay and start sequential step bloom
+            flowerOverlay.style.display = 'flex';
+            flowerOverlay.classList.remove('drop-animation');
+            flowerOverlay.classList.add('bloom-animation');
+
+            // 2. Screen transition
+            setTimeout(() => {
+                mainConsole.style.display = 'none';
+                letterScreen.style.display = 'flex';
+                flowerOverlay.classList.add('drop-animation');
+            }, 5800);
+
+            // 3. Clean up overlay after the drop animation finishes
+            setTimeout(() => {
+                flowerOverlay.style.display = 'none';
+                flowerOverlay.classList.remove('bloom-animation');
+                flowerOverlay.classList.remove('drop-animation');
+            }, 7300);
+        }
+    </script>
+</body>
+</html>
